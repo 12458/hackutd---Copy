@@ -1,0 +1,64 @@
+{
+    "temperature_difference_alert": {
+        "enabled": true,
+        "description": "Alert when temperature sensor 1 is higher than sensor 2",
+        "nodes": [
+            {
+                "type": "get_data",
+                "properties": {
+                    "topic": "sensors_12458_temperature"
+                },
+                "id": "get_temp1",
+                "next": [
+                    "get_temp2"
+                ]
+            },
+            {
+                "type": "get_data",
+                "properties": {
+                    "topic": "sensors_12458_temperature2"
+                },
+                "id": "get_temp2",
+                "next": [
+                    "compare_temps"
+                ]
+            },
+            {
+                "next_false": [
+                    "end"
+                ],
+                "type": "compare",
+                "next_true": [
+                    "publish_alert"
+                ],
+                "id": "compare_temps",
+                "properties": {
+                    "input2": "get_temp2",
+                    "operator": ">",
+                    "input1": "get_temp1"
+                }
+            },
+            {
+                "type": "publish",
+                "properties": {
+                    "action_data": {
+                        "to": "alerts@shangen.org",
+                        "body": "Temperature sensor 1 is higher than sensor 2"
+                    },
+                    "action": "email"
+                },
+                "id": "publish_alert",
+                "next": [
+                    "end"
+                ]
+            },
+            {
+                "type": "end",
+                "id": "end"
+            }
+        ],
+        "start_node": "get_temp1",
+        "id": "temperature_difference_alert",
+        "name": "Temperature Difference Alert"
+    }
+}
